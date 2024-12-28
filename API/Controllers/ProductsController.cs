@@ -1,25 +1,19 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Core.RequestHelpers;
 using Core.Specifications;
-using Infrastructure.Data;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductsController(IGenericRepository<Product> repo) : ControllerBase
+    public class ProductsController(IGenericRepository<Product> repo) : BaseApiController
     {
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
-            var spec = new ProductSpecification(brand, type,sort);
+            var spec = new ProductSpecification(specParams);
 
-            var products = await repo.ListAsync(spec);
-
-            return Ok(products);
+            return await CreatePagedResult(repo, spec, specParams.PageIndex, specParams.PageSize);
         }
 
         // api/procuts/1
@@ -28,7 +22,7 @@ namespace API.Controllers
         {
             var product = await repo.GetByIdAsync(id);
 
-            if(product == null) return NotFound();
+            if (product == null) return NotFound();
 
             return product;
         }
@@ -40,20 +34,20 @@ namespace API.Controllers
 
             if (await repo.SaveAllAsync())
             {
-                return CreatedAtAction("GetProduct", new { id=product.Id }, product);
+                return CreatedAtAction("GetProduct", new { id = product.Id }, product);
             }
-            
+
             return BadRequest("Problem creating product");
         }
 
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> UpdateProduct(int id,Product product)
+        public async Task<ActionResult> UpdateProduct(int id, Product product)
         {
             if (id != product.Id || !ProductExists(id)) return BadRequest("Cannot update this product");
 
             repo.Update(product);
 
-             if (await repo.SaveAllAsync())
+            if (await repo.SaveAllAsync())
             {
                 return NoContent();
             }
@@ -70,7 +64,8 @@ namespace API.Controllers
 
             repo.Remove(product);
 
-            if (await repo.SaveAllAsync()) { 
+            if (await repo.SaveAllAsync())
+            {
                 return NoContent();
             }
 
