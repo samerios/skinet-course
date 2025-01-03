@@ -1,11 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
@@ -18,7 +13,7 @@ namespace Infrastructure.Data
 
         public async Task<int> CountAsync(ISpecification<T> spec)
         {
-            var query= context.Set<T>().AsQueryable();
+            var query = context.Set<T>().AsQueryable();
 
             query = spec.ApplyCriteria(query);
 
@@ -63,11 +58,6 @@ namespace Infrastructure.Data
         public void Remove(T entity)
         {
             context.Set<T>().Remove(entity);
-        }
-
-        public async Task<bool> SaveAllAsync()
-        {
-           return await context.SaveChangesAsync() > 0;
         }
 
         public void Update(T entity)
