@@ -26,7 +26,7 @@ jobs:
 
       - name: Install deps and build angular app
         run: |
-          cd client
+          cd C:/Users/samki/source/repos/skinet
           npm install
           ng build
 
