@@ -26,7 +26,7 @@ jobs:
 
       - name: Install deps and build angular app
         run: |
-          cd https://github.com/samerios/skinet-course-client-side
+          path https://github.com/samerios/skinet-course-client-side
           npm install
           ng build
 
